@@ -1,83 +1,364 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Post Cat - Under Development</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    * { box-sizing:border-box; margin:0; padding:0; }
-    body { font-family:'Poppins',sans-serif; line-height:1.6; background:#fff; color:#111; scroll-behavior:smooth; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post Cat API</title>
 
-    /* Hero */
-    .hero { 
-      height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;
-      background:linear-gradient(135deg,#1e1e2f,#2c2c44); color:white; padding:0 20px;
-    }
-    .hero img.logo { width:120px; margin-bottom:20px; }
-    .hero h1 { font-size:60px; margin-bottom:20px; font-weight:700; }
-    .hero p { font-size:22px; margin-bottom:10px; max-width:700px; }
-    .coming-soon { font-size:18px; font-weight:600; color:#ffcc00; margin-bottom:20px; animation:blink 1.5s infinite; }
-    @keyframes blink { 0%,50%,100%{opacity:1;} 25%,75%{opacity:0.3;} }
-    .btn { padding:15px 50px; background:linear-gradient(90deg,#4a90e2,#3572c1); color:white; border-radius:50px; font-weight:600; transition:0.3s; }
-    .btn:hover { transform:scale(1.05); box-shadow:0 10px 25px rgba(0,0,0,0.2); }
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Fira+Code&display=swap" rel="stylesheet">
 
-    /* Features */
-    .features { display:flex; flex-wrap:wrap; justify-content:center; gap:40px; padding:100px 20px; background:#f5f5f5; }
-    .feature {
-      background:white; padding:40px 30px; border-radius:15px; width:calc(25% - 30px); min-width:250px; text-align:center;
-      box-shadow:0 10px 30px rgba(0,0,0,0.1); transition:transform 0.5s, box-shadow 0.5s; opacity:0; margin-bottom:40px;
-    }
-    .feature h2 { font-size:22px; margin-bottom:15px; font-weight:600; }
-    .feature p { font-size:16px; color:#555; }
-    .feature:hover { transform:translateY(-10px); box-shadow:0 15px 35px rgba(0,0,0,0.2); }
-    .feature.show { opacity:1; animation:fadeInUp 0.8s forwards; }
-    @keyframes fadeInUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
 
-    /* Footer */
-    footer { text-align:center; padding:50px 20px; background:#222; color:white; }
+body{
+  font-family:'Inter',sans-serif;
+  background:#0d1117;
+  color:#c9d1d9;
+  overflow-x:hidden;
+}
 
-    /* Responsive */
-    @media(max-width:1200px){ .feature{width:calc(33.33% - 30px);} }
-    @media(max-width:900px){ .feature{width:calc(50% - 30px);} }
-    @media(max-width:600px){ .feature{width:90%;} }
-  </style>
+/* GRID BG */
+body::before{
+  content:"";
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size:40px 40px;
+  z-index:-2;
+}
+
+/* CURSOR GLOW */
+.glow{
+  position:fixed;
+  width:350px;
+  height:350px;
+  background:radial-gradient(circle,#58a6ff33,transparent);
+  pointer-events:none;
+  z-index:-1;
+  transform:translate(-50%,-50%);
+}
+
+/* NAV */
+.nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px 40px;
+  border-bottom:1px solid #30363d;
+}
+
+.logo-wrap{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.logo-wrap img{
+  width:36px;
+  animation:float 4s infinite ease-in-out;
+}
+
+.logo-text{
+  color:#58a6ff;
+  font-weight:600;
+}
+
+/* HERO */
+.hero{
+  padding:130px 20px 100px;
+  text-align:center;
+}
+
+.hero h1{
+  font-size:64px;
+  background:linear-gradient(90deg,#58a6ff,#7ee787);
+  -webkit-background-clip:text;
+  color:transparent;
+  animation:fadeUp 1s ease forwards;
+}
+
+.hero p{
+  margin-top:15px;
+  color:#8b949e;
+  max-width:750px;
+  margin-inline:auto;
+  animation:fadeUp 1.4s ease forwards;
+}
+
+/* badge */
+.badge{
+  margin-top:20px;
+  display:inline-block;
+  padding:7px 16px;
+  border-radius:20px;
+  border:1px solid #30363d;
+  color:#ff7b72;
+  background:#ff7b7210;
+  animation:pulse 2s infinite;
+}
+
+/* buttons */
+.btn{
+  display:inline-block;
+  margin-top:30px;
+  padding:14px 34px;
+  border-radius:8px;
+  border:1px solid #30363d;
+  color:#58a6ff;
+  text-decoration:none;
+  transition:.3s;
+}
+
+.btn:hover{
+  background:#161b22;
+  transform:translateY(-2px);
+}
+
+/* code */
+.code{
+  max-width:950px;
+  margin:100px auto;
+  background:#161b22;
+  padding:30px;
+  border-radius:12px;
+  font-family:'Fira Code', monospace;
+  border:1px solid #30363d;
+  font-size:14px;
+  line-height:1.6;
+}
+
+/* SECTION */
+.section{
+  max-width:1200px;
+  margin:120px auto;
+  padding:0 20px;
+}
+
+.section h2{
+  color:#58a6ff;
+  font-size:32px;
+  margin-bottom:30px;
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:30px;
+}
+
+/* CARD */
+.card{
+  padding:30px;
+  border-radius:14px;
+  background:#0d1117;
+  border:1px solid #30363d;
+  transition:.4s;
+  opacity:0;
+  transform:translateY(30px);
+}
+
+.card.show{
+  opacity:1;
+  transform:translateY(0);
+}
+
+.card:hover{
+  transform:translateY(-10px);
+  border-color:#58a6ff;
+  box-shadow:0 0 30px #58a6ff22;
+}
+
+.card h3{
+  color:#58a6ff;
+  margin-bottom:10px;
+}
+
+.card p{
+  color:#8b949e;
+  font-size:15px;
+}
+
+/* ANIMATIONS */
+@keyframes fadeUp{
+  from{opacity:0; transform:translateY(30px)}
+  to{opacity:1; transform:translateY(0)}
+}
+
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-8px)}
+}
+
+@keyframes pulse{
+  0%,100%{opacity:1}
+  50%{opacity:.5}
+}
+</style>
 </head>
+
 <body>
 
-  <!-- Hero Section -->
-  <section class="hero">
-    <img src="https://llaiqhsvxvmyfliiumlz.supabase.co/storage/v1/object/public/Pic/Logo%20PNG.png" class="logo" alt="Post Cat Logo">
-    <h1>Post Cat</h1>
-    <p>আমাদের SaaS প্ল্যাটফর্ম বর্তমানে Under Development। শীঘ্রই আপনার Facebook, Instagram, এবং YouTube পোস্ট automate করার সুবিধা আনবো।</p>
-    <p class="coming-soon">Site Under Development 🚧</p>
-    <a href="#" class="btn">শুরু করুন</a>
-  </section>
+<div class="glow" id="glow"></div>
 
-  <!-- Features Section -->
-  <section class="features">
-    <div class="feature"><h2>স্মার্ট Scheduling</h2><p>Post তৈরি করে স্বয়ংক্রিয়ভাবে publish করুন।</p></div>
-    <div class="feature"><h2>Media Library</h2><p>ছবি ও ভিডিও upload এবং organize করুন।</p></div>
-    <div class="feature"><h2>Automation</h2><p>দৈনন্দিন পোস্ট automate করুন।</p></div>
-    <div class="feature"><h2>Developer API</h2><p>API ব্যবহার করে নিজের apps বা tools এর সাথে integrate করুন।</p></div>
-  </section>
+<!-- NAV -->
+<div class="nav">
+  <div class="logo-wrap">
+    <img src="https://llaiqhsvxvmyfliiumlz.supabase.co/storage/v1/object/public/Pic/Logo%20PNG.png">
+    <div class="logo-text">Post Cat</div>
+  </div>
+</div>
 
-  <!-- Footer -->
-  <footer>
-    <p>Post Cat - Software & IT Service</p>
-    <p>ইমেইল: support@postcat.io</p>
-  </footer>
+<!-- HERO -->
+<section class="hero">
+  <h1>Post Cat API</h1>
+  <p>Automate and scale your social media workflows across Facebook, Instagram, and YouTube with one powerful API.</p>
 
-  <!-- Scroll Animation -->
-  <script>
-    const features = document.querySelectorAll('.feature');
-    window.addEventListener('scroll', () => {
-      const triggerBottom = window.innerHeight / 5 * 4;
-      features.forEach(feature => {
-        const featureTop = feature.getBoundingClientRect().top;
-        if(featureTop < triggerBottom){ feature.classList.add('show'); }
-      });
-    });
-  </script>
+  <div class="badge">🚧 Site Under Development</div>
+
+  <br>
+  <a href="#" class="btn">Read Documentation</a>
+</section>
+
+<!-- API EXAMPLE -->
+<div class="code">
+POST /v1/post
+
+{
+  "platform": "facebook",
+  "content": "Post Cat launch 🚀",
+  "media_url": "https://image.com/photo.jpg",
+  "schedule": "2026-04-10T10:00:00Z"
+}
+</div>
+
+<!-- FEATURES -->
+<section class="section">
+  <h2>Core Features</h2>
+
+  <div class="grid">
+    <div class="card"><h3>⚡ Fast API</h3><p>Built for speed and high-scale automation.</p></div>
+    <div class="card"><h3>🔐 Secure</h3><p>Token-based authentication system.</p></div>
+    <div class="card"><h3>📅 Scheduling</h3><p>Schedule posts with precise timing.</p></div>
+    <div class="card"><h3>🔁 Webhooks</h3><p>Get real-time event updates instantly.</p></div>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section class="section">
+  <h2>Use Cases</h2>
+
+  <div class="grid">
+    <div class="card"><h3>📈 Marketing Automation</h3><p>Automate daily content publishing.</p></div>
+    <div class="card"><h3>🤖 AI Content Systems</h3><p>Connect GPT content directly to posting.</p></div>
+    <div class="card"><h3>🏢 Agency Tools</h3><p>Manage multiple clients at scale.</p></div>
+    <div class="card"><h3>🧠 Custom Workflows</h3><p>Build advanced automation pipelines.</p></div>
+  </div>
+</section>
+<!-- INTEGRATIONS -->
+<section class="section">
+  <h2>Integrations</h2>
+
+  <div class="grid">
+    <div class="card"><h3>🧩 n8n</h3><p>Connect automation workflows easily.</p></div>
+    <div class="card"><h3>⚡ Zapier</h3><p>Trigger actions across thousands of apps.</p></div>
+    <div class="card"><h3>🧠 OpenAI</h3><p>Generate content and publish instantly.</p></div>
+    <div class="card"><h3>💻 Custom Backend</h3><p>Works with any language or framework.</p></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="section">
+  <h2>Platform Stats</h2>
+
+  <div class="grid">
+    <div class="card"><h3>🚀 99.99%</h3><p>API uptime reliability</p></div>
+    <div class="card"><h3>⚡ &lt;200ms</h3><p>Average response time</p></div>
+    <div class="card"><h3>🌍 Global</h3><p>Worldwide infrastructure</p></div>
+    <div class="card"><h3>🔄 Real-time</h3><p>Instant webhook delivery</p></div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section">
+  <h2>Simple Pricing</h2>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Free</h3>
+      <p>Basic usage for testing</p>
+      <p style="margin-top:10px;color:#58a6ff;">$0/month</p>
+    </div>
+
+    <div class="card" style="border-color:#58a6ff;">
+      <h3>Pro</h3>
+      <p>For growing businesses</p>
+      <p style="margin-top:10px;color:#58a6ff;">$19/month</p>
+    </div>
+
+    <div class="card">
+      <h3>Enterprise</h3>
+      <p>Custom solutions</p>
+      <p style="margin-top:10px;color:#58a6ff;">Contact us</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section" style="text-align:center">
+  <h2>Start Building with Post Cat</h2>
+  <p style="color:#8b949e; margin-bottom:20px;">
+    Join developers who are automating their social media workflows.
+  </p>
+
+  <a href="#" class="btn">Get API Access</a>
+</section>
+
+<!-- STATUS -->
+<div style="text-align:center;margin-top:60px;color:#7ee787;font-family:'Fira Code',monospace;">
+  🟢 All systems operational
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <img src="https://llaiqhsvxvmyfliiumlz.supabase.co/storage/v1/object/public/Pic/Logo%20PNG.png" style="width:50px;margin-bottom:10px;">
+  
+  <h2 style="color:#58a6ff;">Post Cat</h2>
+
+  <p style="color:#8b949e;">Developer-first social media automation platform.</p>
+  <p style="color:#8b949e;">support@postcat.io</p>
+
+  <div style="margin-top:20px;font-size:14px;color:#6e7681;">
+    © 2026 Post Cat. Built for developers.
+  </div>
+</footer>
+
+<!-- JS FINAL -->
+<script>
+/* cursor glow */
+const glow=document.getElementById('glow');
+document.addEventListener('mousemove',(e)=>{
+  glow.style.left=e.clientX+'px';
+  glow.style.top=e.clientY+'px';
+});
+
+/* scroll animation */
+const cards=document.querySelectorAll('.card');
+
+window.addEventListener('scroll',()=>{
+  const trigger=window.innerHeight*0.85;
+
+  cards.forEach(c=>{
+    const top=c.getBoundingClientRect().top;
+    if(top<trigger){
+      c.classList.add('show');
+    }
+  });
+});
+</script>
+
 </body>
 </html>
