@@ -1,42 +1,159 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Post Cat</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post Cat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* General */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      line-height: 1.6;
+      background-color: #fff;
+      color: #111;
+    }
+    a {
+      text-decoration: none;
+    }
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    /* Hero Section */
+    .hero {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: linear-gradient(135deg, #1e1e2f 0%, #2c2c44 100%);
+      color: white;
+      padding: 0 20px;
+      flex-direction: column;
+    }
+    .hero h1 {
+      font-size: 60px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .hero p {
+      font-size: 22px;
+      margin-bottom: 30px;
+      max-width: 700px;
+    }
+    .btn {
+      padding: 15px 40px;
+      background-color: #4a90e2;
+      color: white;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+    .btn:hover {
+      background-color: #3572c1;
+    }
+
+    /* Features Section */
+    .features {
+      padding: 100px 20px;
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      background-color: #f5f5f5;
+    }
+    .feature {
+      background-color: white;
+      padding: 40px 30px;
+      border-radius: 15px;
+      width: 300px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      transition: 0.3s;
+    }
+    .feature:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    }
+    .feature h2 {
+      font-size: 22px;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+    .feature p {
+      font-size: 16px;
+      color: #555;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 50px 20px;
+      background-color: #222;
+      color: white;
+    }
+
+    /* Responsive */
+    @media(max-width: 768px) {
+      .hero h1 {
+        font-size: 48px;
+      }
+      .hero p {
+        font-size: 18px;
+      }
+      .features {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
 </head>
 <body>
-    <!-- Hero Section -->
-    <section class="hero">
-        <h1>Post Cat</h1>
-        <p>আমাদের SaaS প্ল্যাটফর্ম দিয়ে আপনার Facebook, Instagram, YouTube পোস্ট সহজেই শিডিউল ও automate করুন।</p>
-        <a href="#" class="btn">শুরু করুন</a>
-    </section>
 
-    <!-- Features Section -->
-    <section class="features">
-        <h2>মূল সুবিধা</h2>
-        <div class="feature-list">
-            <div class="feature">
-                <h3>স্মার্ট Scheduling</h3>
-                <p>Post create করে auto publish করুন।</p>
-            </div>
-            <div class="feature">
-                <h3>Media Library</h3>
-                <p>আপনার ছবি এবং ভিডিও সহজে upload ও manage করুন।</p>
-            </div>
-            <div class="feature">
-                <h3>Automation</h3>
-                <p>দৈনন্দিন পোস্ট automate করুন।</p>
-            </div>
-        </div>
-    </section>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <h1>Post Cat</h1>
+      <p>আমাদের SaaS প্ল্যাটফর্ম দিয়ে আপনার Facebook, Instagram, এবং YouTube পোস্ট সহজেই শিডিউল ও automate করুন। সবকিছু এক জায়গা থেকে নিয়ন্ত্রণ করুন।</p>
+      <a href="#" class="btn">শুরু করুন</a>
+    </div>
+  </section>
 
-    <!-- Contact / Footer -->
-    <section class="footer">
-        <p>Post Cat - Software & IT Service</p>
-        <p>ইমেইল: support@postcat.com</p>
-    </section>
+  <!-- Features Section -->
+  <section class="features">
+    <div class="container">
+      <div class="feature">
+        <h2>স্মার্ট Scheduling</h2>
+        <p>Post তৈরি করে স্বয়ংক্রিয়ভাবে নির্ধারিত সময়ে publish করুন।</p>
+      </div>
+      <div class="feature">
+        <h2>Media Library</h2>
+        <p>ছবি ও ভিডিও upload, organize এবং reuse করুন সহজে।</p>
+      </div>
+      <div class="feature">
+        <h2>Automation</h2>
+        <p>দৈনন্দিন পোস্টের workflow automate করুন।</p>
+      </div>
+      <div class="feature">
+        <h2>Developer API</h2>
+        <p>Post Cat API ব্যবহার করে নিজের apps বা tools এর সাথে integrate করুন।</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>Post Cat - Software & IT Service</p>
+    <p>ইমেইল: support@postcat.io</p>
+  </footer>
+
 </body>
 </html>
