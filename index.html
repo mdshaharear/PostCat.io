@@ -3,9 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Post Cat</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Post Cat - Under Development</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* General */
+    * { box-sizing: border-box; margin:0; padding:0; }
+    body { font-family: 'Poppins', sans-serif; line-height:1.6; background:#fff; color:#111; scroll-behavior:smooth; }
+
+    /* Container */
+    .container { width:90%; max-width:1200px; margin: auto; }
+
+    /* Hero */
+    .hero {
+      height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;
+      background:linear-gradient(135deg,#1e1e2f,#2c2c44); color:white; padding:0 20px;
+    }
+    .hero h1 { font-size:60px; margin-bottom:20px; font-weight:700; }
+    .hero p { font-size:22px; margin-bottom:10px; max-width:700px; }
+    .coming-soon { font-size:18px; font-weight:600; color:#ffcc00; margin-bottom:20px; animation:blink 1.5s infinite; }
+    @keyframes blink { 0%,50%,100%{opacity:1;} 25%,75%{opacity:0.3;} }
+    .btn { padding:15px 50px; background:linear-gradient(90deg,#4a90e2,#3572c1); color:white; border-radius:50px; font-weight:600; transition:0.3s; }
+    .btn:hover { transform:scale(1.05); box-shadow:0 10px 25px rgba(0,0,0,0.2); }
+
+    /* Features */
+    .features { padding:100px 20px; display:flex; flex-wrap:wrap; justify-content:center; gap:40px; background:#f5f5f5; }
+    .feature {
+      background:white; padding:40px 30px; border-radius:15px; width:calc(25% - 30px); min-width:250px; text-align:center;
+      box-shadow:0 10px 30px rgba(0,0,0,0.1); transition:transform 0.5s, box-shadow 0.5s; opacity:0; margin-bottom:40px;
+    }
+    .feature h2 { font-size:22px; margin-bottom:15px; font-weight:600; }
+    .feature p { font-size:16px; color:#555; }
+    .feature:hover { transform:translateY(-10px); box-shadow:0 15px 35px rgba(0,0,0,0.2); }
+
+    .feature.show { opacity:1; animation:fadeInUp 0.8s forwards; }
+    @keyframes fadeInUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+
+    /* Footer */
+    footer { text-align:center; padding:50px 20px; background:#222; color:white; }
+
+    /* Responsive */
+    @media(max-width:1200px){ .feature{width:calc(33.33% - 30px);} }
+    @media(max-width:900px){ .feature{width:calc(50% - 30px);} }
+    @media(max-width:600px){ .feature{width:90%;} }
+  </style>
 </head>
 <body>
 
@@ -13,15 +53,8 @@
   <section class="hero">
     <div class="container">
       <h1>Post Cat</h1>
-      <section class="hero">
-  <div class="container">
-    <h1>Post Cat</h1>
-    <p>আমাদের SaaS প্ল্যাটফর্ম বর্তমানে Under Development। 
-       শীঘ্রই আমরা আপনার Facebook, Instagram, এবং YouTube পোস্ট automate করার সুবিধা আনবো।</p>
-    <p class="coming-soon">Site Under Development 🚧</p>
-    <a href="#" class="btn">শুরু করুন</a>
-  </div>
-</section>
+      <p>আমাদের SaaS প্ল্যাটফর্ম বর্তমানে Under Development।</p>
+      <p class="coming-soon">Site Under Development 🚧</p>
       <a href="#" class="btn">শুরু করুন</a>
     </div>
   </section>
@@ -29,22 +62,10 @@
   <!-- Features Section -->
   <section class="features">
     <div class="container">
-      <div class="feature">
-        <h2>স্মার্ট Scheduling</h2>
-        <p>Post তৈরি করে স্বয়ংক্রিয়ভাবে publish করুন।</p>
-      </div>
-      <div class="feature">
-        <h2>Media Library</h2>
-        <p>ছবি ও ভিডিও upload এবং organize করুন।</p>
-      </div>
-      <div class="feature">
-        <h2>Automation</h2>
-        <p>দৈনন্দিন পোস্ট automate করুন।</p>
-      </div>
-      <div class="feature">
-        <h2>Developer API</h2>
-        <p>API ব্যবহার করে নিজের apps বা tools এর সাথে integrate করুন।</p>
-      </div>
+      <div class="feature"><h2>স্মার্ট Scheduling</h2><p>Post তৈরি করে স্বয়ংক্রিয়ভাবে publish করুন।</p></div>
+      <div class="feature"><h2>Media Library</h2><p>ছবি ও ভিডিও upload এবং organize করুন।</p></div>
+      <div class="feature"><h2>Automation</h2><p>দৈনন্দিন পোস্ট automate করুন।</p></div>
+      <div class="feature"><h2>Developer API</h2><p>API ব্যবহার করে নিজের apps বা tools এর সাথে integrate করুন।</p></div>
     </div>
   </section>
 
@@ -55,18 +76,14 @@
   </footer>
 
   <script>
-    // Scroll animation for features
     const features = document.querySelectorAll('.feature');
     window.addEventListener('scroll', () => {
       const triggerBottom = window.innerHeight / 5 * 4;
       features.forEach(feature => {
         const featureTop = feature.getBoundingClientRect().top;
-        if(featureTop < triggerBottom){
-          feature.classList.add('show');
-        }
+        if(featureTop < triggerBottom){ feature.classList.add('show'); }
       });
     });
   </script>
-
 </body>
 </html>
