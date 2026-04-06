@@ -6,113 +6,132 @@
   <title>Post Cat</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    /* General */
     * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      font-family: 'Poppins', sans-serif;
-      line-height: 1.6;
-      background-color: #fff;
-      color: #111;
-    }
-    a {
-      text-decoration: none;
-    }
-    .container {
-      width: 90%;
-      max-width: 1200px;
-      margin: auto;
-    }
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.6;
+  background-color: #fff;
+  color: #111;
+  scroll-behavior: smooth;
+}
+a { text-decoration: none; }
 
-    /* Hero Section */
-    .hero {
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      background: linear-gradient(135deg, #1e1e2f 0%, #2c2c44 100%);
-      color: white;
-      padding: 0 20px;
-      flex-direction: column;
-    }
-    .hero h1 {
-      font-size: 60px;
-      font-weight: 700;
-      margin-bottom: 20px;
-    }
-    .hero p {
-      font-size: 22px;
-      margin-bottom: 30px;
-      max-width: 700px;
-    }
-    .btn {
-      padding: 15px 40px;
-      background-color: #4a90e2;
-      color: white;
-      border-radius: 8px;
-      font-weight: 600;
-      transition: 0.3s;
-    }
-    .btn:hover {
-      background-color: #3572c1;
-    }
+/* Container */
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: auto;
+}
 
-    /* Features Section */
-    .features {
-      padding: 100px 20px;
-      display: flex;
-      justify-content: center;
-      gap: 40px;
-      flex-wrap: wrap;
-      background-color: #f5f5f5;
-    }
-    .feature {
-      background-color: white;
-      padding: 40px 30px;
-      border-radius: 15px;
-      width: 300px;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      transition: 0.3s;
-    }
-    .feature:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    }
-    .feature h2 {
-      font-size: 22px;
-      margin-bottom: 15px;
-      font-weight: 600;
-    }
-    .feature p {
-      font-size: 16px;
-      color: #555;
-    }
+/* Hero Section */
+.hero {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(135deg, #1e1e2f 0%, #2c2c44 100%);
+  color: white;
+  padding: 0 20px;
+  animation: fadeInHero 1.5s ease-in;
+}
+.hero h1 {
+  font-size: 60px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: fadeInUp 1s forwards 0.5s;
+}
+.hero p {
+  font-size: 22px;
+  margin-bottom: 30px;
+  max-width: 700px;
+  opacity: 0;
+  animation: fadeInUp 1s forwards 1s;
+}
+.btn {
+  padding: 15px 50px;
+  background: linear-gradient(90deg, #4a90e2, #3572c1);
+  color: white;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: 0.3s;
+  opacity: 0;
+  animation: fadeInUp 1s forwards 1.5s;
+}
+.btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
 
-    /* Footer */
-    footer {
-      text-align: center;
-      padding: 50px 20px;
-      background-color: #222;
-      color: white;
-    }
+/* Features Section */
+.features {
+  padding: 100px 20px;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  background-color: #f5f5f5;
+}
+.feature {
+  background-color: white;
+  padding: 40px 30px;
+  border-radius: 15px;
+  width: 300px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  transition: transform 0.5s, box-shadow 0.5s;
+  opacity: 0;
+}
+.feature h2 {
+  font-size: 22px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+.feature p {
+  font-size: 16px;
+  color: #555;
+}
+.feature:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}
 
-    /* Responsive */
-    @media(max-width: 768px) {
-      .hero h1 {
-        font-size: 48px;
-      }
-      .hero p {
-        font-size: 18px;
-      }
-      .features {
-        flex-direction: column;
-        align-items: center;
-      }
+/* Footer */
+footer {
+  text-align: center;
+  padding: 50px 20px;
+  background-color: #222;
+  color: white;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInHero {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Scroll animation for features */
+.feature.show {
+  opacity: 1;
+  animation: fadeInUp 0.8s forwards;
+}
+
+/* Responsive */
+@media(max-width: 768px) {
+  .hero h1 { font-size: 48px; }
+  .hero p { font-size: 18px; }
+  .features { flex-direction: column; align-items: center; }
+}
     }
   </style>
 </head>
@@ -148,7 +167,18 @@
       </div>
     </div>
   </section>
-
+<script>
+  const features = document.querySelectorAll('.feature');
+  window.addEventListener('scroll', () => {
+    const triggerBottom = window.innerHeight / 5 * 4;
+    features.forEach(feature => {
+      const featureTop = feature.getBoundingClientRect().top;
+      if(featureTop < triggerBottom){
+        feature.classList.add('show');
+      }
+    });
+  });
+</script>
   <!-- Footer -->
   <footer>
     <p>Post Cat - Software & IT Service</p>
