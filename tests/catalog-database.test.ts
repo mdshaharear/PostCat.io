@@ -75,6 +75,7 @@ test("production Compose provisions a private persistent PostgreSQL service", as
 
 test("deployment applies migrations before starting the web service", async () => {
   const deploy = await read("ops/deploy.sh");
+  assert.match(deploy, /pull database web migrate/);
   assert.match(deploy, /docker compose[\s\S]*run --rm migrate/);
   assert.match(deploy, /docker compose[\s\S]*up --detach --wait web/);
   assert.ok(deploy.indexOf("run --rm migrate") < deploy.indexOf("up --detach --wait web"));
