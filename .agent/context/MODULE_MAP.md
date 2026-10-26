@@ -31,3 +31,6 @@
 | Container packaging and local runtime hardening | `Dockerfile`, `.dockerignore`, `compose.yaml`, `next.config.ts`, `scripts/prepare-standalone.mjs` |
 | Liveness and standalone packaging tests | `src/app/api/health/route.ts`, `tests/health.test.ts`, `tests/standalone-packaging.test.ts` |
 | GitHub quality/container checks | `.github/workflows/ci.yml` |
+| Production image publication and protected VPS deployment | `.github/workflows/deploy.yml`, `compose.production.yaml`, `ops/deploy.sh`, `ops/rollback.sh`, `ops/provision-vps.sh`, `ops/nginx/postcat.io.conf`, `ops/RUNBOOK.md` |
+| Contabo Object Storage configuration, signing and verification | `src/storage/contabo-config.ts`, `src/storage/contabo-s3.ts`, `scripts/storage-check-env.ts`, `scripts/storage-audit.ts`, `ops/OBJECT_STORAGE.md` |
+| Deployment and storage regression tests | `tests/deployment.test.ts`, `tests/storage.test.ts` |

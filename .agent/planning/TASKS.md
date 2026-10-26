@@ -33,6 +33,11 @@
 - [x] Add Next.js standalone output, pinned multi-stage Docker image and hardened local Compose configuration.
 - [x] Add a cache-free `/api/health` endpoint and CI checks for source quality plus hardened Compose startup.
 - [x] Package `public` and `.next/static` into standalone output and verify CSS/product assets on a non-default runtime port.
+- [x] Add digest-pinned GHCR publication, protected Production deployment workflow and post-publish container smoke test.
+- [x] Add hardened VPS provisioning/deploy/rollback and existing-host Nginx operations foundation.
+- [x] Make rollback reuse a cached previous image digest before attempting a registry pull.
+- [x] Add server-only Contabo Object Storage configuration, signed URL, content-hash metadata verification and read-only audit foundations.
+- [x] Resolve homepage canonical normalization and restore the full Playwright suite to green.
 
 ## Pending
 
@@ -45,6 +50,7 @@
 
 ## Blocked / intentionally out of scope
 
-- Production deployment, merchant APIs, authentication, tracking and external services remain out of scope.
-- GitHub replacement is explicitly approved, but publishing is blocked until GitHub CLI authentication identifies the exact private `postcat` repository and an authorized commit identity.
+- Actual production deployment, merchant APIs, authentication, tracking and external service provisioning require explicit approval and credentials.
+- GitHub remote/authentication and commit identity are configured, but the current deployment/storage changes have not been committed or pushed in this session.
 - A local Docker engine is not installed/on `PATH`; the standalone server is verified locally, while the image build is delegated to the committed CI workflow until Docker is available.
+- Live VPS, DNS/TLS, protected GitHub environment settings and a real Contabo bucket audit remain external acceptance steps.

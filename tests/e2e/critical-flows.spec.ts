@@ -90,7 +90,20 @@ test("trust pages and machine-readable discovery are reachable", async ({ page, 
   const llms = await request.get("/llms.txt");
   expect(await llms.text()).toContain("/privacy");
   const sitemap = await request.get("/sitemap.xml");
-  expect(await sitemap.text()).toContain("https://postcat.io/privacy");
+  const sitemapXml = await sitemap.text();
+  expect(sitemapXml).toContain("https://postcat.io/privacy");
+  const locations = [...sitemapXml.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1]);
+  expect(locations.length).toBeGreaterThan(0);
+  expect(locations.every((url) => url.startsWith("https://postcat.io/"))).toBe(true);
+  expect(sitemapXml).not.toContain("localhost");
+  expect(sitemapXml).not.toContain("192.168.");
+
+  const robots = await (await request.get("/robots.txt")).text();
+  expect(robots).toContain("Sitemap: https://postcat.io/sitemap.xml");
+
+  await page.goto("/");
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://postcat.io");
+  await expect(page.getByRole("contentinfo").getByRole("link", { name: /postcat\.io/ })).toHaveAttribute("href", "https://postcat.io");
 });
 
 test("fictional product and comparison pages stay out of the index", async ({ page, request }) => {

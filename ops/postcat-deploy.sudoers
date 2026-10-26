@@ -1,0 +1,1 @@
+postcat-deploy ALL=(root) NOPASSWD: /opt/postcat/bin/deploy *, /opt/postcat/bin/rollback

@@ -153,4 +153,17 @@ All products, prices, ratings, reviews, availability, dates and specifications a
 - Sitemap/link verification checked `51` sitemap URLs and `43` homepage internal links with zero non-200 responses. Repeated local production Lighthouse measured Performance `84`, Accessibility `100`, Best Practices `78` and SEO `100`; the Best Practices score is limited by the HTTP-only local origin and development source-map checks, not the intended HTTPS production origin.
 - Independent pre-commit review blockers were resolved: `/search` is now crawlable so its page-level `noindex` can be observed consistently with `SearchAction`; the unsupported “Independent” claim was softened; modal overlays render through a body portal and make background content inert; CSP and HSTS were added; header/OG/search-policy tests were expanded.
 - Fixed the LAN preview's unstyled/broken-image regression by removing CSP `upgrade-insecure-requests`, which had rewritten `http://192.168.68.105:3000` CSS, JavaScript and image requests to unavailable HTTPS URLs. Production HTTPS remains enforced at build configuration. LAN verification now returns HTTP `200` for CSS, JavaScript and SVG assets; mobile browser computed Manrope styling, the intended paper background, a loaded hero image and zero horizontal overflow.
-- Latest standalone production build is running on the LAN preview. No external feed/API request, real product import, Git commit, remote, push or deployment was performed. GitHub CLI remains unauthenticated and must be connected before the authorized repository replacement can be executed.
+- At that earlier checkpoint, no Git commit, remote, push or deployment had been performed and GitHub CLI was still unauthenticated; the completion section below records the newer state.
+
+## Production deployment and Object Storage foundation completion — 2026-10-26
+
+- Completed the uncommitted GHCR → protected GitHub Production environment → Contabo VPS deployment foundation with digest-pinned releases, trusted SSH, an existing-host Nginx TLS proxy on dedicated loopback port `3300`, and serialized deploy/rollback scripts.
+- Added a post-publish smoke test for the exact GHCR image digest before production deployment.
+- Hardened rollback so it uses a locally cached previous digest with `--pull never`, fetching only when the image is genuinely absent.
+- Clarified that `PRODUCTION_DEPLOY_ENABLED` is a repository-level Actions variable; VPS credentials and host values remain protected Production environment settings.
+- Completed the server-only Contabo Object Storage foundation with endpoint/bucket validation, paired public-delivery configuration, immutable content-hash keys, signed upload constraints and HEAD confirmation of type, length and SHA-256 metadata.
+- Storage remains intentionally disconnected from public routes/CMS until authentication, image rights and persistence design are approved.
+- Fixed homepage canonical expectation to the normalized `https://postcat.io` value.
+- Verification: `69/69` unit/integration tests passed; Playwright `27 passed`, `3 expected project skips`, `0 failed`; TypeScript and ESLint passed; production build generated `390/390` pages; `npm audit --omit=dev` reported `0 vulnerabilities`; shell syntax and `git diff --check` passed; offline storage environment validation passed.
+- Docker execution, live VPS deployment/rollback and live Contabo bucket audit were not run because this machine has no Docker engine and no production credentials were used.
+- GitHub authentication, remote and commit identity are now configured. No commit, push, GitHub environment change, VPS change or external storage change was performed in this completion session.

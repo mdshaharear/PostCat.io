@@ -1,0 +1,183 @@
+name: Deploy production
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Production operation
+        required: true
+        type: choice
+        options: [rollback]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: postcat-production
+  cancel-in-progress: false
+
+env:
+  IMAGE_NAME: ghcr.io/mdshaharear/postcat.io
+
+jobs:
+  publish:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    outputs:
+      digest: ${{ steps.push.outputs.digest }}
+      sha: ${{ steps.context.outputs.sha }}
+    steps:
+      - name: Record tested commit
+        id: context
+        env:
+          TESTED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: echo "sha=$TESTED_SHA" >> "$GITHUB_OUTPUT"
+      - name: Checkout tested commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - name: Log in to GHCR
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate image metadata
+        id: meta
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: type=raw,value=sha-${{ github.event.workflow_run.head_sha }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.event.workflow_run.head_sha }}
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+      - name: Build and push immutable image
+        id: push
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          build-args: NEXT_PUBLIC_SITE_URL=https://postcat.io
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: Smoke-test published image digest
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: |
+          set -euo pipefail
+          image="${IMAGE_NAME}@${DIGEST}"
+          container="postcat-smoke-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          cleanup() { docker rm --force "$container" >/dev/null 2>&1 || true; }
+          trap cleanup EXIT
+          docker pull "$image"
+          docker run --detach --rm --name "$container" --publish 127.0.0.1::3000 "$image"
+          port=$(docker port "$container" 3000/tcp | sed -n 's/.*://p')
+          test -n "$port"
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error "http://127.0.0.1:${port}/api/health" | grep --quiet '"status":"ok"'; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs "$container"
+          exit 1
+      - name: Attest image provenance
+        uses: actions/attest@daf44fb950173508f38bd2406030372c1d1162b1 # v3
+        with:
+          subject-name: ${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+
+  deploy:
+    needs: publish
+    if: vars.PRODUCTION_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment:
+      name: Production
+      url: https://postcat.io
+    steps:
+      - name: Configure trusted SSH
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          KNOWN_HOSTS: ${{ vars.VPS_SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/postcat
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/postcat ~/.ssh/known_hosts
+      - name: Deploy exact image digest
+        id: deploy
+        env:
+          HOST: ${{ vars.VPS_HOST }}
+          PORT: ${{ vars.VPS_PORT }}
+          USER: ${{ vars.VPS_USER }}
+          SHA: ${{ needs.publish.outputs.sha }}
+          DIGEST: ${{ needs.publish.outputs.digest }}
+        run: |
+          set -euo pipefail
+          image="ghcr.io/mdshaharear/postcat.io@$DIGEST"
+          ssh -i ~/.ssh/postcat -p "$PORT" "$USER@$HOST" "/opt/postcat/bin/deploy $image $SHA"
+      - name: Verify public HTTPS endpoint
+        env:
+          URL: ${{ vars.PRODUCTION_HEALTH_URL }}
+        run: curl --fail --silent --show-error --retry 12 --retry-all-errors --retry-delay 5 "$URL" | grep --quiet '"status":"ok"'
+      - name: Roll back when public verification fails
+        if: failure() && steps.deploy.outcome == 'success'
+        env:
+          HOST: ${{ vars.VPS_HOST }}
+          PORT: ${{ vars.VPS_PORT }}
+          USER: ${{ vars.VPS_USER }}
+        run: ssh -i ~/.ssh/postcat -p "$PORT" "$USER@$HOST" /opt/postcat/bin/rollback
+      - name: Remove SSH material
+        if: always()
+        run: rm -f ~/.ssh/postcat ~/.ssh/known_hosts
+
+  manual-rollback:
+    if: github.event_name == 'workflow_dispatch' && inputs.action == 'rollback'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: Production
+      url: https://postcat.io
+    steps:
+      - name: Configure trusted SSH
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          KNOWN_HOSTS: ${{ vars.VPS_SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/postcat
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/postcat ~/.ssh/known_hosts
+      - name: Roll back production
+        env:
+          HOST: ${{ vars.VPS_HOST }}
+          PORT: ${{ vars.VPS_PORT }}
+          USER: ${{ vars.VPS_USER }}
+        run: ssh -i ~/.ssh/postcat -p "$PORT" "$USER@$HOST" /opt/postcat/bin/rollback
+      - name: Verify public HTTPS endpoint
+        env:
+          URL: ${{ vars.PRODUCTION_HEALTH_URL }}
+        run: curl --fail --silent --show-error --retry 12 --retry-all-errors --retry-delay 5 "$URL" | grep --quiet '"status":"ok"'
+      - name: Remove SSH material
+        if: always()
+        run: rm -f ~/.ssh/postcat ~/.ssh/known_hosts

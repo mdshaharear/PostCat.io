@@ -1,0 +1,11 @@
+;; PostCat web cutover records for Cloudflare DNS import
+;; Generated for the existing Contabo VPS.
+;; IMPORTANT: Before importing, delete the current apex A record for postcat.io
+;; and the current www CNAME that points to Vercel. Keep all MX, mail, DKIM,
+;; SPF, verification and other existing records unchanged.
+;; Cloudflare may import these as DNS-only. After TLS is verified, enable the
+;; orange cloud for the @ and www web records if desired.
+$ORIGIN postcat.io.
+$TTL 300
+@    300 IN A     147.93.169.224
+www  300 IN CNAME postcat.io.
