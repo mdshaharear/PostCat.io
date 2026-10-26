@@ -98,7 +98,7 @@ jobs:
           docker logs "$container"
           exit 1
       - name: Attest image provenance
-        uses: actions/attest@daf44fb950173508f38bd2406030372c1d1162b1 # v3
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
         with:
           subject-name: ${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.push.outputs.digest }}
