@@ -15,7 +15,7 @@ export interface AmazonProviderConfig {
   credentialVersion: "3.1" | "3.2" | "3.3";
   partnerTag: string;
   marketplace: string;
-  tokenEndpoint: "https://api.amazon.com/auth/o2/token";
+  tokenEndpoint: "https://api.amazon.com/auth/o2/token" | "https://api.amazon.co.uk/auth/o2/token" | "https://api.amazon.co.jp/auth/o2/token";
 }
 
 export interface AffiliateProviderConfig {
@@ -68,13 +68,18 @@ export function resolveAffiliateProviderConfig(environment: Environment): Affili
     if (!(["3.1", "3.2", "3.3"] as const).includes(amazon[2] as "3.1" | "3.2" | "3.3")) {
       throw new Error("unsupported Amazon Creators API credential version");
     }
+    const tokenEndpoints = {
+      "3.1": "https://api.amazon.com/auth/o2/token",
+      "3.2": "https://api.amazon.co.uk/auth/o2/token",
+      "3.3": "https://api.amazon.co.jp/auth/o2/token",
+    } as const;
     result.amazon = {
       credentialId: amazon[0],
       credentialSecret: amazon[1],
       credentialVersion: amazon[2] as "3.1" | "3.2" | "3.3",
       partnerTag: amazon[3],
       marketplace: amazon[4],
-      tokenEndpoint: "https://api.amazon.com/auth/o2/token",
+      tokenEndpoint: tokenEndpoints[amazon[2] as "3.1" | "3.2" | "3.3"],
     };
   }
 

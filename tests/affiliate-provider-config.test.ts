@@ -20,6 +20,19 @@ test("affiliate provider configuration enables eBay and Amazon only with complet
   assert.equal(config.amazon?.marketplace, "www.amazon.com");
 });
 
+test("Amazon credential versions use their required regional token endpoints", () => {
+  const amazon = (version: string, marketplace: string) => resolveAffiliateProviderConfig({
+    AMAZON_CREATORS_CREDENTIAL_ID: "id",
+    AMAZON_CREATORS_CREDENTIAL_SECRET: "secret",
+    AMAZON_CREATORS_CREDENTIAL_VERSION: version,
+    AMAZON_PARTNER_TAG: "tag",
+    AMAZON_MARKETPLACE: marketplace,
+  }).amazon?.tokenEndpoint;
+  assert.equal(amazon("3.1", "www.amazon.com"), "https://api.amazon.com/auth/o2/token");
+  assert.equal(amazon("3.2", "www.amazon.co.uk"), "https://api.amazon.co.uk/auth/o2/token");
+  assert.equal(amazon("3.3", "www.amazon.co.jp"), "https://api.amazon.co.jp/auth/o2/token");
+});
+
 test("affiliate provider configuration rejects incomplete, public or unsupported credentials", () => {
   assert.throws(() => resolveAffiliateProviderConfig({ EBAY_CLIENT_ID: "only-id" }), /EBAY_CLIENT_SECRET/);
   assert.throws(() => resolveAffiliateProviderConfig({

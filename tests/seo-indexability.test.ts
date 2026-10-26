@@ -26,6 +26,8 @@ test("leaf category requires ten verified indexable products", () => {
   assert.equal(isCategoryIndexable({ status: "active", isLeaf: true, ownProducts: Array.from({ length: 9 }, () => product()), qualifyingDescendantProductCount: 0 }), false);
   assert.equal(isCategoryIndexable({ status: "active", isLeaf: true, ownProducts: Array.from({ length: 10 }, () => product()), qualifyingDescendantProductCount: 0 }), true);
   assert.equal(isCategoryIndexable({ status: "active", isLeaf: true, ownProducts: Array.from({ length: 10 }, (_, index) => product({ verified: index !== 0 })), qualifyingDescendantProductCount: 0 }), false);
+  assert.equal(isCategoryIndexable({ status: "active", isLeaf: true, ownProducts: [], qualifyingDescendantProductCount: 0, minimumLeafProducts: 0 }), false);
+  assert.equal(isCategoryIndexable({ status: "active", isLeaf: true, ownProducts: [], qualifyingDescendantProductCount: 0, minimumLeafProducts: 1.5 }), false);
 });
 
 test("parent category requires qualifying descendant inventory or verified editorial value", () => {
@@ -33,6 +35,7 @@ test("parent category requires qualifying descendant inventory or verified edito
   assert.equal(isCategoryIndexable({ status: "active", isLeaf: false, ownProducts: [], qualifyingDescendantProductCount: 10 }), true);
   assert.equal(isCategoryIndexable({ status: "active", isLeaf: false, ownProducts: [], qualifyingDescendantProductCount: 0, verifiedEditorialValue: true }), true);
   assert.equal(isCategoryIndexable({ status: "retired", isLeaf: false, ownProducts: [], qualifyingDescendantProductCount: 10 }), false);
+  assert.equal(isCategoryIndexable({ status: "active", isLeaf: false, ownProducts: [], qualifyingDescendantProductCount: 1.5 }), false);
 });
 
 test("sitemap shards are stable, unique and never exceed fifty thousand URLs", () => {
@@ -47,4 +50,10 @@ test("sitemap shards are stable, unique and never exceed fifty thousand URLs", (
 test("sitemap shards reject foreign origins and credential-bearing URLs", () => {
   assert.throws(() => buildSitemapShards([{ url: "https://example.com/products/1", lastModified: new Date() }]));
   assert.throws(() => buildSitemapShards([{ url: "https://user:pass@postcat.io/products/1", lastModified: new Date() }]));
+});
+
+test("sitemap shards split before the fifty-megabyte uncompressed limit", () => {
+  const longSegment = "x".repeat(1_900);
+  const entries = Array.from({ length: 30_000 }, (_, index) => ({ url: `https://postcat.io/products/${index}-${longSegment}`, lastModified: new Date("2026-10-26T00:00:00.000Z") }));
+  assert.ok(buildSitemapShards(entries).length > 1);
 });

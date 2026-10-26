@@ -26,8 +26,10 @@ export function isProductIndexable(product: ProductIndexabilityInput): boolean {
 
 export function isCategoryIndexable(input: CategoryIndexabilityInput): boolean {
   if (input.status !== "active") return false;
+  if (!Number.isInteger(input.qualifyingDescendantProductCount) || input.qualifyingDescendantProductCount < 0) return false;
   if (input.isLeaf) {
     const minimum = input.minimumLeafProducts ?? 10;
+    if (!Number.isInteger(minimum) || minimum < 1) return false;
     return input.ownProducts.filter(isProductIndexable).length >= minimum;
   }
   return input.qualifyingDescendantProductCount > 0 || input.verifiedEditorialValue === true;

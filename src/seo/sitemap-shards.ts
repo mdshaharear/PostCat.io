@@ -4,7 +4,12 @@ export interface SitemapEntry {
 }
 
 const MAX_SITEMAP_URLS = 50_000;
+const MAX_SITEMAP_BYTES = 50 * 1024 * 1024;
 const CANONICAL_ORIGIN = "https://postcat.io";
+
+function entryBytes(entry: SitemapEntry): number {
+  return new TextEncoder().encode(`<url><loc>${entry.url}</loc><lastmod>${entry.lastModified.toISOString()}</lastmod></url>`).byteLength;
+}
 
 export function buildSitemapShards(entries: readonly SitemapEntry[], shardSize = MAX_SITEMAP_URLS): SitemapEntry[][] {
   if (!Number.isInteger(shardSize) || shardSize < 1 || shardSize > MAX_SITEMAP_URLS) {
@@ -21,6 +26,19 @@ export function buildSitemapShards(entries: readonly SitemapEntry[], shardSize =
   }
   const sorted = [...unique.values()].sort((left, right) => left.url.localeCompare(right.url));
   const shards: SitemapEntry[][] = [];
-  for (let index = 0; index < sorted.length; index += shardSize) shards.push(sorted.slice(index, index + shardSize));
+  let shard: SitemapEntry[] = [];
+  let shardBytes = 200;
+  for (const entry of sorted) {
+    const bytes = entryBytes(entry);
+    if (bytes + 200 > MAX_SITEMAP_BYTES) throw new Error(`sitemap URL is too large: ${entry.url}`);
+    if (shard.length && (shard.length >= shardSize || shardBytes + bytes > MAX_SITEMAP_BYTES)) {
+      shards.push(shard);
+      shard = [];
+      shardBytes = 200;
+    }
+    shard.push(entry);
+    shardBytes += bytes;
+  }
+  if (shard.length) shards.push(shard);
   return shards;
 }

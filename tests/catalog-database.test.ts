@@ -65,6 +65,8 @@ test("production Compose provisions a private persistent PostgreSQL service", as
   assert.match(compose, /POSTGRES_DB: postcat/);
   assert.match(compose, /POSTGRES_USER: postcat/);
   assert.match(compose, /POSTGRES_PASSWORD: \$\{POSTCAT_DB_PASSWORD:\?/);
+  assert.match(compose, /POSTCAT_DB_APP_PASSWORD/);
+  assert.match(compose, /postgresql:\/\/postcat_app:\$\{POSTCAT_DB_APP_PASSWORD\}@database:5432\/postcat/);
   assert.match(compose, /pg_isready -U postcat -d postcat/);
   assert.match(compose, /postcat-db-data:\/var\/lib\/postgresql\/data/);
   assert.doesNotMatch(compose, /database:[\s\S]{0,500}\n\s+ports:/);
@@ -87,4 +89,7 @@ test("migration runner serializes schema changes with a PostgreSQL advisory lock
   const migrate = await read("scripts/db-migrate.mjs");
   assert.match(migrate, /pg_advisory_lock/);
   assert.match(migrate, /pg_advisory_unlock/);
+  assert.match(migrate, /CREATE ROLE/);
+  assert.match(migrate, /NOSUPERUSER/);
+  assert.match(migrate, /GRANT SELECT, INSERT, UPDATE, DELETE/);
 });
