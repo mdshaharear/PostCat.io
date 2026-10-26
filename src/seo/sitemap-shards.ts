@@ -4,6 +4,7 @@ export interface SitemapEntry {
 }
 
 const MAX_SITEMAP_URLS = 50_000;
+const CANONICAL_ORIGIN = "https://postcat.io";
 
 export function buildSitemapShards(entries: readonly SitemapEntry[], shardSize = MAX_SITEMAP_URLS): SitemapEntry[][] {
   if (!Number.isInteger(shardSize) || shardSize < 1 || shardSize > MAX_SITEMAP_URLS) {
@@ -12,7 +13,7 @@ export function buildSitemapShards(entries: readonly SitemapEntry[], shardSize =
   const unique = new Map<string, SitemapEntry>();
   for (const entry of entries) {
     const url = new URL(entry.url);
-    if (url.protocol !== "https:" || url.search || url.hash) throw new Error(`invalid canonical sitemap URL: ${entry.url}`);
+    if (url.origin !== CANONICAL_ORIGIN || url.username || url.password || url.search || url.hash) throw new Error(`invalid canonical sitemap URL: ${entry.url}`);
     if (Number.isNaN(entry.lastModified.getTime())) throw new Error(`invalid lastModified for ${entry.url}`);
     const normalized = url.toString();
     const previous = unique.get(normalized);

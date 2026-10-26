@@ -46,6 +46,8 @@ sha=$2
 [[ "$sha" =~ ^[a-f0-9]{40}$ ]] || fail "git SHA must contain exactly 40 lowercase hexadecimal characters"
 [ -f "$RUNTIME_ENV" ] || fail "$RUNTIME_ENV is missing"
 [ -f "$COMPOSE_TEMPLATE" ] || fail "$COMPOSE_TEMPLATE is missing"
+db_password=$(sed -n 's/^POSTCAT_DB_PASSWORD=//p' "$RUNTIME_ENV")
+[[ "$db_password" =~ ^[A-Za-z0-9._~-]{32,128}$ ]] || fail "POSTCAT_DB_PASSWORD must be 32-128 URL-safe characters"
 
 install -d -m 0750 "$RELEASES"
 exec 9>"$ROOT/deploy.lock"

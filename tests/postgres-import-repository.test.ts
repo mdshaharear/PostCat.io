@@ -95,6 +95,20 @@ test("PostgreSQL import repository commits catalog changes and run report atomic
   await pool.end();
 });
 
+test("duplicate import run IDs fail atomically instead of hiding a conflicting audit report", async () => {
+  const { repo, pool } = await repository();
+  const first = record();
+  const firstPlan = buildImportPlan({ sourceId: first.sourceId, mode: "incremental", records: [first], existing: [] });
+  await repo.commitRun(firstPlan, report(), first.observedAt);
+
+  const second = record({ externalProductId: "product-2", externalVariantId: "variant-2", externalOfferId: "offer-2", observedAt: "2026-10-26T13:00:00.000Z" });
+  const secondPlan = buildImportPlan({ sourceId: second.sourceId, mode: "incremental", records: [second], existing: await repo.listActive("ebay-us") });
+  await assert.rejects(() => repo.commitRun(secondPlan, report({ finishedAt: "2026-10-26T13:00:01.000Z" }), second.observedAt));
+  assert.deepEqual((await repo.listActive("ebay-us")).map((item) => item.externalOfferId), ["offer-1"]);
+  assert.equal((await repo.listRuns()).length, 1);
+  await pool.end();
+});
+
 test("PostgreSQL import repository updates freshness and archives without deleting provenance", async () => {
   const { repo, pool } = await repository();
   const first = record();

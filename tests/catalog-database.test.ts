@@ -76,7 +76,15 @@ test("production Compose provisions a private persistent PostgreSQL service", as
 test("deployment applies migrations before starting the web service", async () => {
   const deploy = await read("ops/deploy.sh");
   assert.match(deploy, /pull database web migrate/);
+  assert.match(deploy, /db_password.*POSTCAT_DB_PASSWORD/);
+  assert.match(deploy, /A-Za-z0-9\._~-/);
   assert.match(deploy, /docker compose[\s\S]*run --rm migrate/);
   assert.match(deploy, /docker compose[\s\S]*up --detach --wait web/);
   assert.ok(deploy.indexOf("run --rm migrate") < deploy.indexOf("up --detach --wait web"));
+});
+
+test("migration runner serializes schema changes with a PostgreSQL advisory lock", async () => {
+  const migrate = await read("scripts/db-migrate.mjs");
+  assert.match(migrate, /pg_advisory_lock/);
+  assert.match(migrate, /pg_advisory_unlock/);
 });

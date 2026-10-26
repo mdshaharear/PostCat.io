@@ -43,3 +43,8 @@ test("sitemap shards are stable, unique and never exceed fifty thousand URLs", (
   assert.equal(new Set(shards.flat().map((entry) => entry.url)).size, 100_005);
   assert.equal(shards.flat()[0]?.url, "https://postcat.io/products/product-000000");
 });
+
+test("sitemap shards reject foreign origins and credential-bearing URLs", () => {
+  assert.throws(() => buildSitemapShards([{ url: "https://example.com/products/1", lastModified: new Date() }]));
+  assert.throws(() => buildSitemapShards([{ url: "https://user:pass@postcat.io/products/1", lastModified: new Date() }]));
+});

@@ -137,8 +137,8 @@ export class PostgresImportRepository implements ImportRepository {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      await applyOperations(client, plan, appliedAt);
       await this.insertRun(client, report);
+      await applyOperations(client, plan, appliedAt);
       await client.query("COMMIT");
     } catch (error) {
       await client.query("ROLLBACK");
@@ -156,8 +156,7 @@ export class PostgresImportRepository implements ImportRepository {
     await client.query(
       `INSERT INTO catalog_import_runs (
         run_id, source_id, mode, dry_run, status, report, started_at, finished_at
-      ) VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7,$8)
-      ON CONFLICT (run_id) DO NOTHING`,
+      ) VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7,$8)`,
       [report.runId, report.sourceId, report.mode, report.dryRun, report.status, JSON.stringify(report), report.startedAt, report.finishedAt],
     );
   }

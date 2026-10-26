@@ -12,8 +12,11 @@ const migrationsDirectory = join(dirname(fileURLToPath(import.meta.url)), "..", 
 const files = (await readdir(migrationsDirectory)).filter((name) => /^\d+_.+\.sql$/.test(name)).sort();
 const client = new Client({ connectionString: databaseUrl });
 await client.connect();
+let migrationLockHeld = false;
 
 try {
+  await client.query("SELECT pg_advisory_lock(hashtextextended('postcat-schema-migrations', 0))");
+  migrationLockHeld = true;
   await client.query(`CREATE TABLE IF NOT EXISTS catalog_schema_migrations (
     version TEXT PRIMARY KEY,
     checksum TEXT NOT NULL,
@@ -39,5 +42,9 @@ try {
     }
   }
 } finally {
-  await client.end();
+  try {
+    if (migrationLockHeld) await client.query("SELECT pg_advisory_unlock(hashtextextended('postcat-schema-migrations', 0))");
+  } finally {
+    await client.end();
+  }
 }
