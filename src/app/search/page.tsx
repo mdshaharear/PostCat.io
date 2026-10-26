@@ -1,0 +1,24 @@
+import Link from "next/link";
+import type { Metadata } from "next";
+import { categories, filterProducts, getCategoryPath, rootCategories } from "@/data/catalog";
+import { Breadcrumbs, PageShell } from "@/components/site-shell";
+import { EmptyState, ProductGrid } from "@/components/catalog-ui";
+import { FilterToggle } from "@/components/client-controls";
+
+type SearchParams = { q?: string; category?: string; maxPrice?: string; stock?: string; sort?: "relevance" | "price-asc" | "price-desc" | "rating-desc" };
+export const metadata: Metadata = { title: "Search products", description: "Search and filter the PostCat demo product catalog.", robots: { index: false, follow: true } };
+
+function SearchFilters({ values, idPrefix }: { values: SearchParams; idPrefix: "mobile" | "desktop" }) {
+  const categoryOptions = categories.map((category) => ({ category, label: getCategoryPath(category.slug).map((item) => item.name).join(" › ") })).sort((a, b) => a.label.localeCompare(b.label));
+  const categoryId = `category-filter-${idPrefix}`;
+  const priceId = `price-filter-${idPrefix}`;
+  return <form action="/search" className="filter-fields"><input type="hidden" name="q" value={values.q ?? ""} /><fieldset><legend>Category</legend><label htmlFor={categoryId}>Choose any department or deep category</label><select id={categoryId} name="category" defaultValue={values.category ?? ""}><option value="">All products</option>{categoryOptions.map(({ category, label }) => <option key={category.id} value={category.slug}>{label}</option>)}</select></fieldset><fieldset><legend>Price</legend><label htmlFor={priceId}>Maximum demo price</label><select id={priceId} name="maxPrice" defaultValue={values.maxPrice ?? ""}><option value="">Any price</option><option value="5000">Under $50</option><option value="10000">Under $100</option><option value="20000">Under $200</option><option value="50000">Under $500</option></select></fieldset><fieldset><legend>Availability</legend><label><input type="checkbox" name="stock" value="in" defaultChecked={values.stock === "in"} /> In-stock demo offers only</label></fieldset><input type="hidden" name="sort" value={values.sort ?? "relevance"} /><button className="button button-primary" type="submit">Apply filters</button><Link className="filter-reset" href={`/search${values.q ? `?q=${encodeURIComponent(values.q)}` : ""}`}>Clear filters</Link></form>;
+}
+
+export default async function SearchPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const values = await searchParams;
+  const q = values.q ?? "";
+  const maxPriceMinor = values.maxPrice ? Number(values.maxPrice) : undefined;
+  const items = filterProducts({ query: q, category: values.category || undefined, maxPriceMinor: Number.isFinite(maxPriceMinor) ? maxPriceMinor : undefined, inStockOnly: values.stock === "in", sort: values.sort ?? "relevance" });
+  return <PageShell><div className="shell page-top"><Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Search" }]} /><div className="search-heading"><p className="kicker">Search PostCat</p><h1>{q ? <>Results for “{q}”</> : "Find your next useful thing"}</h1><form action="/search" className="search-page-form"><label className="sr-only" htmlFor="search-q">Search products</label><input id="search-q" name="q" defaultValue={q} placeholder="Try wireless, coffee, storage or skincare" /><button className="button button-primary">Search</button></form><p>{items.length} demo {items.length === 1 ? "result" : "results"}</p></div><div className="listing-toolbar"><FilterToggle><SearchFilters values={values} idPrefix="mobile" /></FilterToggle><form action="/search" className="sort-form"><input type="hidden" name="q" value={q} /><input type="hidden" name="category" value={values.category ?? ""} /><input type="hidden" name="maxPrice" value={values.maxPrice ?? ""} /><input type="hidden" name="stock" value={values.stock ?? ""} /><label>Sort <select name="sort" defaultValue={values.sort ?? "relevance"}><option value="relevance">Relevance</option><option value="price-asc">Price: low first</option><option value="price-desc">Price: high first</option><option value="rating-desc">Demo rating</option></select></label><button className="button button-secondary">Update</button></form></div><div className="listing-layout"><aside className="filter-sidebar"><h2>Refine results</h2><SearchFilters values={values} idPrefix="desktop" /></aside><section aria-label="Search results">{items.length ? <ProductGrid items={items} /> : <><EmptyState title="No demo products found" text={`Nothing matched “${q}”. Try a simpler term or clear a filter.`} /><div className="suggested-categories">{rootCategories.slice(0, 6).map((category) => <Link key={category.id} href={`/categories/${category.slug}`}>{category.icon} {category.name}</Link>)}</div></>}</section></div></div></PageShell>;
+}

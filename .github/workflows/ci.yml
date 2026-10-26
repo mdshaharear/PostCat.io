@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_PUBLIC_SITE_URL: https://postcat.io
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  quality:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24.22.0
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run test:e2e
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run build
+
+  container:
+    needs: quality
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Build and start hardened Compose service
+        run: docker compose up --build --detach
+      - name: Verify container health
+        run: |
+          set -euo pipefail
+          container_id="$(docker compose ps --quiet web)"
+          for attempt in $(seq 1 60); do
+            health="$(docker inspect --format '{{.State.Health.Status}}' "$container_id")"
+            if [ "$health" = "healthy" ] && curl --fail --silent http://127.0.0.1:3000/api/health | grep --quiet '"status":"ok"'; then
+              docker inspect "$container_id" | jq --exit-status '
+                .[0] as $container
+                | ($container.HostConfig.ReadonlyRootfs == true)
+                and ($container.HostConfig.CapDrop == ["ALL"])
+                and ($container.HostConfig.SecurityOpt | index("no-new-privileges:true") != null)
+                and ($container.HostConfig.PidsLimit == 200)
+                and (($container.HostConfig.Tmpfs | keys | sort) == ["/app/.next/cache", "/tmp"])
+                and (($container.NetworkSettings.Ports["3000/tcp"] | length) == 1)
+                and (all($container.NetworkSettings.Ports["3000/tcp"][]; .HostIp == "127.0.0.1"))
+              '
+              docker compose ps
+              exit 0
+            fi
+            sleep 1
+          done
+          exit 1
+      - name: Show container diagnostics
+        if: failure()
+        run: |
+          set -euo pipefail
+          docker compose ps --all
+          docker compose logs --no-color
+      - name: Stop test service
+        if: always()
+        run: docker compose down --remove-orphans

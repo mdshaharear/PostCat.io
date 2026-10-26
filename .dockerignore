@@ -1,0 +1,16 @@
+.git
+.github
+.agent
+.next
+node_modules
+coverage
+playwright-report
+test-results
+tests
+.vscode
+.env*
+!.env.example
+*.log
+*.tsbuildinfo
+Dockerfile*
+compose*.yaml

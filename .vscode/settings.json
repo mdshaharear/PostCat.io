@@ -1,0 +1,14 @@
+{
+  "agent_servers": {
+    "hermes-agent": {
+      "type": "custom",
+      "name": "Hermes Agent",
+      "command": "hermes",
+      "args": ["acp"],
+      "cwd": "${workspaceFolder}"
+    }
+  },
+  "acp.includeBuiltInAgents": false,
+  "acp.autoApprovePermissions": "ask",
+  "acp.logTraffic": true
+}

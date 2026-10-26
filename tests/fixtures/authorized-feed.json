@@ -1,0 +1,25 @@
+{
+  "records": [
+    {
+      "sourceId": "approved-demo-source",
+      "externalProductId": "dry-run-product-1",
+      "externalVariantId": "dry-run-variant-1",
+      "externalOfferId": "dry-run-offer-1",
+      "operation": "upsert",
+      "observedAt": "2026-10-25T10:00:00.000Z",
+      "title": "Authorized Dry-Run Fixture",
+      "description": "A non-published fixture used to verify the PostCat import planner.",
+      "brandName": "Source Fixture",
+      "categorySlug": "processors-cpus",
+      "variantLabel": "Default",
+      "variantAttributes": { "Color": "Black" },
+      "merchantName": "Authorized Merchant",
+      "priceAmountMinor": 12999,
+      "currency": "USD",
+      "availability": "in_stock",
+      "affiliateUrl": "https://merchant.example/dry-run-product-1",
+      "imageUrls": ["https://images.example/dry-run-product-1.webp"],
+      "identifiers": {}
+    }
+  ]
+}

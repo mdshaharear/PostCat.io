@@ -1,0 +1,1 @@
+"use client"; export default function ErrorPage({reset}:{error:Error&{digest?:string};reset:()=>void}){return <main className="state-page"><span aria-hidden>!</span><h1>Something interrupted the edit.</h1><p>The local page could not render. Try the route again.</p><button className="button button-primary" onClick={reset}>Try again</button></main>}

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" role="img" aria-labelledby="title desc">
+<title id="title">Northline Sneakers alternate demo visual</title><desc id="desc">Abstract locally generated illustration for the fictional shoes product.</desc>
+<rect width="800" height="800" rx="60" fill="#e8ece7"/>
+<circle cx="650" cy="145" r="118" fill="#ffd6bd" opacity=".9"/>
+<path d="M70 610 C210 500 340 680 730 470 L730 760 L70 760 Z" fill="#6a75d6" opacity=".13"/>
+<g transform="translate(400 390) rotate(7)">
+<rect x="-205" y="-180" width="410" height="360" rx="52" fill="#6a75d6"/>
+<rect x="-165" y="-140" width="330" height="230" rx="32" fill="#fffdf7" opacity=".92"/>
+<circle cx="0" cy="-24" r="72" fill="#ffd6bd"/>
+<path d="M-105 120 H105" stroke="#fffdf7" stroke-width="22" stroke-linecap="round" opacity=".9"/>
+</g>
+<text x="70" y="92" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#173d30" letter-spacing="3">POSTCAT / DEMO</text>
+<text x="70" y="730" font-family="Arial, sans-serif" font-size="31" font-weight="700" fill="#173d30">Northline Sneakers</text>
+</svg>
