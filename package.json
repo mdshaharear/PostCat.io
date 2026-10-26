@@ -14,6 +14,8 @@
     "start:standalone": "node .next/standalone/server.js",
     "verify": "npm test && npm run typecheck && npm run lint && npm run build",
     "import:dry-run": "node --experimental-strip-types src/imports/cli.ts",
+    "affiliate:check-env": "node --experimental-strip-types scripts/affiliate-check-env.ts",
+    "db:migrate": "node scripts/db-migrate.mjs",
     "storage:check-env": "node --experimental-strip-types scripts/storage-check-env.ts",
     "storage:audit": "node --experimental-strip-types scripts/storage-audit.ts"
   },
@@ -21,6 +23,7 @@
     "@aws-sdk/client-s3": "^3.1156.0",
     "@aws-sdk/s3-request-presigner": "^3.1156.0",
     "next": "16.4.3",
+    "pg": "^8.23.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "server-only": "^0.0.1"
@@ -29,10 +32,12 @@
     "@playwright/test": "^1.64.1",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
+    "pg-mem": "^3.0.14",
     "tailwindcss": "^4",
     "typescript": "^5"
   },

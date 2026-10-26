@@ -90,8 +90,10 @@ rollback_on_error() {
 trap rollback_on_error ERR
 
 compose "$release" config --quiet
-compose "$release" pull web
-compose "$release" up -d --pull never --no-build --remove-orphans --wait
+compose "$release" pull web migrate
+compose "$release" up -d --pull never --no-build database
+compose "$release" run --rm migrate
+compose "$release" up --detach --wait web
 health
 
 if [ -n "$old_current" ] && [ "$old_current" != "$release" ]; then

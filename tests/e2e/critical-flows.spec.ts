@@ -1,5 +1,50 @@
 import { expect, test } from "@playwright/test";
 
+test("mobile hero card keeps readable text and full-size controls", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 740 });
+  await page.goto("/");
+  const caption = page.locator(".hero-product-caption");
+  const heading = caption.getByRole("heading", { level: 2 });
+  const cta = caption.getByRole("link");
+  const orbit = page.locator(".hero-orbit");
+  await expect(caption).toBeVisible();
+  await expect(orbit).toBeVisible();
+  const contrast = await heading.evaluate((element) => {
+    const parse = (value: string) => value.match(/[\d.]+/g)?.slice(0, 3).map(Number) ?? [0, 0, 0];
+    const luminance = (rgb: number[]) => {
+      const channels = rgb.map((value) => {
+        const channel = value / 255;
+        return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+      });
+      return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+    };
+    const foreground = luminance(parse(getComputedStyle(element).color));
+    const background = luminance(parse(getComputedStyle(element.parentElement!.parentElement!).backgroundColor));
+    return (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05);
+  });
+  expect(contrast).toBeGreaterThanOrEqual(4.5);
+  const ctaBox = await cta.boundingBox();
+  expect(ctaBox?.width ?? 0).toBeGreaterThanOrEqual(44);
+  expect(ctaBox?.height ?? 0).toBeGreaterThanOrEqual(44);
+  const featureBox = await page.locator(".hero-feature").boundingBox();
+  const orbitBox = await orbit.boundingBox();
+  expect(orbitBox?.x ?? -1).toBeGreaterThanOrEqual(featureBox?.x ?? 0);
+  expect((orbitBox?.x ?? 0) + (orbitBox?.width ?? 0)).toBeLessThanOrEqual((featureBox?.x ?? 0) + (featureBox?.width ?? 0));
+});
+
+test("mobile comparison exposes a scroll hint and keeps row labels visible", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 740 });
+  await page.goto("/compare");
+  await expect(page.getByText("Swipe horizontally to compare products")).toBeVisible();
+  const wrapper = page.locator(".comparison-wrap");
+  const rowLabel = page.locator(".comparison-table tbody th").first();
+  const initial = await rowLabel.boundingBox();
+  await wrapper.evaluate((element) => { element.scrollLeft = 420; });
+  await expect.poll(() => wrapper.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
+  const scrolled = await rowLabel.boundingBox();
+  expect(Math.abs((scrolled?.x ?? 0) - (initial?.x ?? 0))).toBeLessThanOrEqual(1);
+});
+
 test("homepage search reaches relevant results without horizontal overflow", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();

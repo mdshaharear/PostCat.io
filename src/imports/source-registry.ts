@@ -1,7 +1,7 @@
 export interface ImportSourceConfig {
   sourceId: string;
   enabled: boolean;
-  adapter: "json-file";
+  adapter: "json-file" | "ebay-browse-api" | "amazon-creators-api";
   allowedCurrencies: readonly string[];
   allowedAffiliateHosts: readonly string[];
   allowedImageHosts: readonly string[];
@@ -19,6 +19,26 @@ const sources: readonly ImportSourceConfig[] = [
     allowedImageHosts: ["images.example"],
     defaultMode: "incremental",
     maxMissingRatio: 0.2,
+  },
+  {
+    sourceId: "ebay-us",
+    enabled: false,
+    adapter: "ebay-browse-api",
+    allowedCurrencies: ["USD"],
+    allowedAffiliateHosts: ["ebay.com", "www.ebay.com", "rover.ebay.com"],
+    allowedImageHosts: ["i.ebayimg.com", "thumbs.ebaystatic.com"],
+    defaultMode: "incremental",
+    maxMissingRatio: 0.1,
+  },
+  {
+    sourceId: "amazon-us",
+    enabled: false,
+    adapter: "amazon-creators-api",
+    allowedCurrencies: ["USD"],
+    allowedAffiliateHosts: ["amazon.com", "www.amazon.com"],
+    allowedImageHosts: ["m.media-amazon.com", "images-na.ssl-images-amazon.com"],
+    defaultMode: "incremental",
+    maxMissingRatio: 0.1,
   },
 ];
 

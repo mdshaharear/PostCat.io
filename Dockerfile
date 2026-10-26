@@ -8,6 +8,9 @@ FROM base AS dependencies
 COPY package.json package-lock.json ./
 RUN npm ci
 
+FROM dependencies AS production-dependencies
+RUN npm prune --omit=dev
+
 FROM base AS builder
 ARG NEXT_PUBLIC_SITE_URL=https://postcat.io
 ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
@@ -21,6 +24,9 @@ ENV NODE_ENV=production \
     PORT=3000
 
 COPY --from=builder --chown=node:node /app/.next/standalone ./
+COPY --from=production-dependencies --chown=node:node /app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /app/scripts/db-migrate.mjs ./scripts/db-migrate.mjs
+COPY --from=builder --chown=node:node /app/src/database/migrations ./src/database/migrations
 RUN mkdir -p .next/cache && chown node:node .next/cache
 
 USER node

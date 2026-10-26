@@ -1,6 +1,52 @@
 name: postcat
 
 services:
+  database:
+    image: postgres:17.11-alpine3.24@sha256:266d3c257594e195b309ae9d1805e54c788f1d7b375f56bf6c367aac6c917e7b
+    environment:
+      POSTGRES_DB: postcat
+      POSTGRES_USER: postcat
+      POSTGRES_PASSWORD: ${POSTCAT_DB_PASSWORD:?POSTCAT_DB_PASSWORD is required}
+    volumes:
+      - postcat-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postcat -d postcat"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+    stop_grace_period: 60s
+    shm_size: 256mb
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 200
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  migrate:
+    image: ${POSTCAT_IMAGE:?POSTCAT_IMAGE must be an immutable GHCR digest reference}
+    pull_policy: always
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postcat:${POSTCAT_DB_PASSWORD}@database:5432/postcat
+    command: ["node", "scripts/db-migrate.mjs"]
+    depends_on:
+      database:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 100
+    restart: "no"
+
   web:
     image: ${POSTCAT_IMAGE:?POSTCAT_IMAGE must be an immutable GHCR digest reference}
     pull_policy: always
@@ -8,6 +54,16 @@ services:
       HOSTNAME: 0.0.0.0
       NODE_ENV: production
       PORT: 3000
+      DATABASE_URL: postgresql://postcat:${POSTCAT_DB_PASSWORD}@database:5432/postcat
+      EBAY_CLIENT_ID: ${EBAY_CLIENT_ID:-}
+      EBAY_CLIENT_SECRET: ${EBAY_CLIENT_SECRET:-}
+      EBAY_MARKETPLACE_ID: ${EBAY_MARKETPLACE_ID:-EBAY_US}
+      EBAY_CAMPAIGN_ID: ${EBAY_CAMPAIGN_ID:-}
+      AMAZON_CREATORS_CREDENTIAL_ID: ${AMAZON_CREATORS_CREDENTIAL_ID:-}
+      AMAZON_CREATORS_CREDENTIAL_SECRET: ${AMAZON_CREATORS_CREDENTIAL_SECRET:-}
+      AMAZON_CREATORS_CREDENTIAL_VERSION: ${AMAZON_CREATORS_CREDENTIAL_VERSION:-3.1}
+      AMAZON_PARTNER_TAG: ${AMAZON_PARTNER_TAG:-}
+      AMAZON_MARKETPLACE: ${AMAZON_MARKETPLACE:-www.amazon.com}
       CONTABO_S3_ENDPOINT: ${CONTABO_S3_ENDPOINT:-}
       CONTABO_S3_REGION: ${CONTABO_S3_REGION:-default}
       CONTABO_S3_ACCESS_KEY_ID: ${CONTABO_S3_ACCESS_KEY_ID:-}
@@ -20,6 +76,9 @@ services:
       CONTABO_S3_MAX_UPLOAD_BYTES: ${CONTABO_S3_MAX_UPLOAD_BYTES:-10485760}
     ports:
       - "127.0.0.1:3300:3000"
+    depends_on:
+      database:
+        condition: service_healthy
     init: true
     read_only: true
     tmpfs:
@@ -37,3 +96,6 @@ services:
       options:
         max-size: "10m"
         max-file: "5"
+
+volumes:
+  postcat-db-data:
